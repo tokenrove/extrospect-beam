@@ -1,0 +1,4 @@
+option('cleanup_before_exit', type: 'boolean', value: false,
+       description: '''whether to cleanup resources just before
+       exiting (normally the OS will take care of it, but this can
+       appease some picky tools)''')

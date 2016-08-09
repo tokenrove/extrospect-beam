@@ -1,0 +1,50 @@
+builddir = build
+stagedir = dist
+
+cc = gcc-5
+cxx = g++-5
+
+defines = -D_GNU_SOURCE -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+warnings = -Wall -Wextra -Wshadow -Wfloat-equal -Wundef -Wcast-align $
+    -Wwrite-strings -Wunreachable-code -Wformat=2 -Wswitch-enum $
+    -Wswitch-default -Winit-self -Wno-strict-aliasing -Werror
+sanitize_flags =
+cflags = $defines $warnings -Wstrict-prototypes $sanitize_flags $
+    -fstack-protector-strong -std=gnu11 -g -O3 -march=native -I$builddir $
+    -Isrc -ggdb -fno-omit-frame-pointer
+libs = -ldw -lelf
+
+rule cc
+  command = $cc -MMD -MT $out -MF $out.d $cflags -c $in -o $out
+  description = CC $out
+  depfile = $out.d
+  deps = gcc
+rule link
+  command = $cc $ldflags -o $out $in $libs
+  description = LINK $out
+
+build $stagedir/erlang-sample: link $builddir/erlang-sample.o $
+  $builddir/proc_maps.o $builddir/process_vm_helpers.o $
+  $builddir/dwarf_helpers.o $builddir/perf_syscall.o $builddir/erlang_helpers.o
+
+build $stagedir/erlang-pstack: link $builddir/erlang-pstack.o $
+  $builddir/proc_maps.o $builddir/process_vm_helpers.o $
+  $builddir/dwarf_helpers.o $builddir/perf_syscall.o $builddir/erlang_helpers.o
+
+build $stagedir/erlang-write-perf-map: link $builddir/erlang-write-perf-map.o $
+  $builddir/process_vm_helpers.o $builddir/dwarf_helpers.o $builddir/erlang_helpers.o
+
+build $stagedir/sample-all-the-things-poc: link $builddir/sample-all-the-things-poc.o $
+  $builddir/perf_syscall.o
+  cflags = $cflags -pthread
+  libs = $libs -pthread
+
+build $builddir/erlang-sample.o: cc erlang-sample.c
+build $builddir/erlang-pstack.o: cc erlang-pstack.c
+build $builddir/erlang-write-perf-map.o: cc erlang-write-perf-map.c
+build $builddir/sample-all-the-things-poc.o: cc sample-all-the-things-poc.c
+build $builddir/proc_maps.o: cc proc_maps.c
+build $builddir/process_vm_helpers.o: cc process_vm_helpers.c
+build $builddir/dwarf_helpers.o: cc dwarf_helpers.c
+build $builddir/erlang_helpers.o: cc erlang_helpers.c
+build $builddir/perf_syscall.o: cc perf_syscall.c

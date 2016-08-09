@@ -1,0 +1,6 @@
+[submodule "vendor/elfutils"]
+	path = vendor/elfutils
+	url = https://github.com/tokenrove/elfutils.git
+[submodule "vendor/perf"]
+	path = vendor/perf
+	url = https://github.com/tokenrove/perf-beam.git
