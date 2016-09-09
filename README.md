@@ -39,8 +39,13 @@ Try:
 ./build.sh
 ```
 
-You will need [ninja](https://ninja-build.org/) and
-[meson](http://mesonbuild.com/) installed.
+You will need:
+ - [ninja](https://ninja-build.org/) (>= 1.5.1)
+ - [meson](http://mesonbuild.com/) (>= 0.33.0)
+ - [liblzma](https://github.com/kobolabs/liblzma)
+ - [gawk](https://www.gnu.org/software/gawk/)
+ - [bison](https://www.gnu.org/software/bison/)
+ - [flex](http://flex.sourceforge.net/)
 
 We will eventually supply a script that verifies the constants chosen
 here are consistent with the running BEAM internals.
@@ -182,8 +187,9 @@ sample the stack of the following bit of code:
 
 ```
     spy_pid = syscall(__NR_gettid);
+    sched_setscheduler(spy_pid, SCHED_IDLE,
+                       &(struct sched_param){.sched_priority=20});
     asm volatile("" ::: "memory");
-    /* XXX should we sched_setscheduler SCHED_IDLE and so on? */
     /* this should probably be nanosleep, but since we destroyed our
      * stack forever, we'd have to put the arguments in static storage
      * or similar.  too much hassle for this prototype.  sched_yield
