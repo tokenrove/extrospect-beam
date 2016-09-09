@@ -22,8 +22,12 @@ build=$base/build
 
 mkdir -p "$build"
 
-echo Building elfutils
 (
+    if [ -f ./build/lib/elfutils/libebl_x86_64.so ]; then
+        echo Skipping elfutils
+        exit 0
+    fi
+    echo Building elfutils
     cd vendor/elfutils
     if [ ! -x ./configure ]; then
         aclocal -I m4 && autoheader && libtoolize && autoconf && automake --add-missing --force-missing --copy
@@ -34,11 +38,18 @@ echo Building elfutils
 
 echo Building erlang-sample
 (
-    mkdir -p "$build" && meson . "$build" && ninja -C "$build"
+    if [ ! -f "$build/build.ninja" ]; then
+        mkdir -p "$build" && meson . "$build"
+    fi
+    ninja -C "$build"
 )
 
-echo Building perf
 (
+    if [ -f "vendor/perf/tools/perf/perf" ]; then
+        echo Skipping perf
+        exit 0
+    fi
+    echo Building perf
     cd vendor/perf/tools/perf/
     EXTRA_CFLAGS=-I$base/src LIBDW_DIR="$build" NO_LIBUNWIND=1 make
 )
