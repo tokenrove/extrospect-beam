@@ -51,5 +51,5 @@ echo Building erlang-sample
     fi
     echo Building perf
     cd vendor/perf/tools/perf/
-    EXTRA_CFLAGS=-I$base/src LDFLAGS="-L$build/lib -ldw" LIBDW_DIR="$build" NO_LIBUNWIND=1 WERROR=0 make
+    LD_LIBRARY_PATH="$build/lib" EXTRA_CFLAGS="-I$base/src -I$build/include" LIBDW_DIR="$build" NO_LIBUNWIND=1 WERROR=0 LDFLAGS="-L$build/lib -ldw" DEBUG=1 V=1 VF=1 make
 )
